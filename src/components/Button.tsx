@@ -1,6 +1,6 @@
 type ButtonProps = {
-    propFunction: any,
-    propsButton: any;
+    propFunction: () => void,
+    propsButton: React.ReactElement;
     value: string,
 }
 
