@@ -13,7 +13,6 @@ import SearchBar from './components/SearchBar';
 
 function App() {
   const [users, setUsers] = useState([]);
-  console.log(users)
 
   //search
   const [searchByName, setSearchByName] = useState('');
@@ -22,27 +21,59 @@ function App() {
   const deferredValueTag = useDeferredValue(searchByTag);
 
   const searchedUsers = useMemo(() => {
-    return users.filter((user: {firstName: string, lastName: string, company: {name: string}}) => {
+    return users.filter((user: {firstName: string, lastName: string, userTag: string}) => {
       const fullName = user.firstName + ' ' + user.lastName;
       return (
         fullName.toLowerCase().includes(deferredValueName.toLowerCase())
         &&
-        user.company.name.toLowerCase().includes(deferredValueTag.toLowerCase())
+        user.userTag.toString().toLowerCase().includes(deferredValueTag.toLowerCase())
       )
     })
   }, [users, deferredValueName, deferredValueTag]);
 
   //pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage, setUsersPerPage] = useState(6)
 
-  const numOfPages = Math.ceil(users.length / 6);
+  const numOfPages = Math.ceil(searchedUsers.length / usersPerPage);
   const pages = [...Array(numOfPages + 1).keys()].slice(1);
-  console.log(pages)
 
-  const indexOfLastUser = currentPage * 6;
-  const indexOfFirstUser = indexOfLastUser - 6;
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
 
   const visibleUsers = searchedUsers.slice(indexOfFirstUser, indexOfLastUser);
+
+  //functions
+
+  const addTag = (tag: string, userId: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setUsers((prevState: any ) => {
+      const updatedUser = prevState.map((user: {id: string, userTag : string}) => {
+        if (user.id === userId) {
+          const userTag = [...(user.userTag || []), tag];
+          return {...user, userTag};
+        } else {
+          return user;
+        }
+      });
+      return updatedUser
+    });
+  };
+
+  const deleteTag = (tag: string, userId: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setUsers((prevState: any ) => {
+      const updatedUser = prevState.map((user: {id: string, userTag : string}) => {
+        if (user.id === userId) {
+          const userTag = [...(user.userTag || [])].filter(t => t !== tag);
+          return {...user, userTag};
+        } else {
+          return user;
+        }
+      });
+      return updatedUser
+    });
+  };
 
   const handlePrevPage = () => {
     if(currentPage !== 1) setCurrentPage(currentPage - 1)
@@ -64,6 +95,32 @@ function App() {
     setCurrentPage(1);
   };
 
+  const handleSort = (value: string) => {
+    if (value === 'Sort Original') {
+      setUsers(searchedUsers.sort((a: {id: number}, b: {id: number}) => a.id - b.id));
+    }
+    else if (value === 'Sort A-Z') {
+      setUsers(searchedUsers.sort((a: {firstName: string}, b: {firstName: string}) => a.firstName.localeCompare(b.firstName)));
+    }
+    else if (value === 'Sort Z-A') {
+      setUsers(searchedUsers.sort((a: {firstName: string}, b: {firstName: string}) => b.firstName.localeCompare(a.firstName)));
+    }
+  }
+
+  const handleDisplayPerPage = (value: string) => {
+    if (Number(value) === 6) {
+      setUsersPerPage(6);
+    }
+    else if (Number(value) === 12) {
+      setUsersPerPage(12);
+    }
+    else if (Number(value) === 24) {
+      setUsersPerPage(24);
+    }
+  }
+
+  console.log(searchedUsers)
+
   useEffect(() => {
     const fetchUsersData = async () => {
       const usersData = await fetchFromAPI(BASE_URL);
@@ -72,36 +129,56 @@ function App() {
     setTimeout(fetchUsersData, 500);
   }, []);
 
+  //styles
+
   const style = {
+    navbar: `flex justify-between items-center p-4`,
+    doubleleftChevron: `${
+      pages.length < 5 ? 'text-transparent pointer-events-none' : currentPage === 1 && 'text-transparent pointer-events-none'
+    } cursor-pointer`,
     leftChevron: `${
-      currentPage === 1 && "text-transparent cursor-default"
+      currentPage === 1 && 'text-transparent pointer-events-none'
     } cursor-pointer`,
     rightChevron: `${
-      currentPage === numOfPages ? "text-transparent cursor-default" : ""
+      numOfPages < 1 ? 'text-transparent pointer-events-none' : currentPage === numOfPages && 'text-transparent pointer-events-none'
+    } cursor-pointer`,
+    doublerightChevron: `${
+      pages.length < 5 ? 'text-transparent pointer-events-none' : currentPage === numOfPages && 'text-transparent pointer-events-none'
     } cursor-pointer`,
   };
 
   if (!users.length) return <h1>Loading...</h1>;
   return (
     <div>
-      <div>
-        <h1>New Project</h1>
+      <div className={style.navbar}>
         <div>
           <SearchBar placeholder='Search by Name' value={searchByName} propFunction={handleSearchName} />
-          <SearchBar placeholder='Search by Company' value={searchByTag} propFunction={handleSearchTag} />
+          <SearchBar placeholder='Search by Tag' value={searchByTag} propFunction={handleSearchTag} />
+        </div>
+        <div className='flex flex-col'>
+          <select onChange={(e) => handleSort(e.currentTarget.value)} className='outline-none'>
+            <option value="Sort Original">Sort Original</option>
+            <option value="Sort A-Z">Sort A-Z</option>
+            <option value="Sort Z-A">Sort Z-A</option>
+          </select>
+          <select onChange={(e) => handleDisplayPerPage(e.currentTarget.value)} className='outline-none'>
+            <option value={6}>Display 6</option>
+            <option value={12}>Display 12</option>
+            <option value={24}>Display 24</option>
+          </select>
         </div>
       </div>
       <div className="flex flex-wrap w-full justify-center items-center">
-        {visibleUsers.map((user, id) => (
-          <UserCard key={id} user={user} />
+        {visibleUsers.map((user: any, id: number) => (
+          <UserCard key={id} user={user} addTag={addTag} deleteTag={deleteTag} />
         ))}
       </div>
       <div className="flex justify-center w-full">
-        <Button propFunction={() => setCurrentPage(1)} value={style.leftChevron} propsButton={<ChevronDoubleLeftIcon strokeWidth={2} width={24} height={24} />} />
+        <Button propFunction={() => setCurrentPage(1)} value={style.doubleleftChevron} propsButton={<ChevronDoubleLeftIcon strokeWidth={2} width={24} height={24} />} />
         <Button propFunction={handlePrevPage} value={style.leftChevron} propsButton={<ChevronLeftIcon strokeWidth={2} width={24} height={24} />}/>
         <Pagination pages={pages} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
         <Button propFunction={handleNextPage} value={style.rightChevron} propsButton={<ChevronRightIcon strokeWidth={2} width={24} height={24} />} />
-        <Button propFunction={()=> setCurrentPage(numOfPages)} value={style.rightChevron} propsButton={<ChevronDoubleRightIcon strokeWidth={2} width={24} height={24} />} />
+        <Button propFunction={()=> setCurrentPage(numOfPages)} value={style.doublerightChevron} propsButton={<ChevronDoubleRightIcon strokeWidth={2} width={24} height={24} />} />
       </div>
     </div>
   );

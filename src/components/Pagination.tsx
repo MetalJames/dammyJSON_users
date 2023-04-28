@@ -10,8 +10,8 @@ type Props = {
 const Pagination = (props: Props) => {
 
     const { pages, currentPage, setCurrentPage } = props;
-    console.log(currentPage);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [pagesCurrentlyDisplaying, setPagesCurrentlyDisplaying] = useState<any>([]);
 
     const initDots = "...";
@@ -20,7 +20,9 @@ const Pagination = (props: Props) => {
 
     useEffect(() => {
         let temporaryDisplaying = [...pages];
-        if (currentPage >= 1 && currentPage <= 4) {
+        if (pages.length <= 5) {
+            temporaryDisplaying = [...pages]
+        } else if (currentPage >= 1 && currentPage <= 4) {
             temporaryDisplaying = [1, 2, 3, 4, 5, initDots, pages.length];
         } else if (currentPage === 4) {
             const slicedPages = pages.slice(0, 5);
@@ -49,7 +51,8 @@ const Pagination = (props: Props) => {
             setCurrentPage(pagesCurrentlyDisplaying[3] - 2);
         }
         setPagesCurrentlyDisplaying(temporaryDisplaying);
-        }, [currentPage, setCurrentPage]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [currentPage, setCurrentPage, pages]);
 
 
     return (
