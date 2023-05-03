@@ -5,6 +5,7 @@ import { CheckIcon } from '@heroicons/react/24/solid'
 type EditProps = {
     setIsEdited: (user: boolean) => void
     editUser: {
+        id: string,
         firstName: string,
         lastName: string,
     },
@@ -21,8 +22,7 @@ const EditUser = (props: EditProps) => {
     const handleFormSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         updateUser({
-            ...editUser, firstName: updatedUserFirstName, lastName: updatedUserLastName,
-            id: ""
+            ...editUser, id:editUser.id, firstName: updatedUserFirstName, lastName: updatedUserLastName,
         });
         setIsEdited(false);
     }
@@ -36,31 +36,25 @@ const EditUser = (props: EditProps) => {
 
     return (
         <div className='border-4 m-2 p-4'>
-            <div role='dialog' aria-labelledby='editTask' 
+            <div role='dialog' aria-labelledby='editUser' 
                     onClick={(e) => {e.target === e.currentTarget && setIsEdited(false)}}>
                 <form onSubmit={handleFormSubmit}>
-                    <input type="text" id='editTask' className='input' 
+                    <input type="text"
                         value={updatedUserFirstName} onInput={(e : React.ChangeEvent<HTMLInputElement>) => setUpdatedUserFirstName(e.target.value)} 
-                        // can be don in two ways first one above and second one below
-                        // value={task} onInput={(e) => setTask((e.target as HTMLInputElement).value)} 
                         required
-                        // autoFocus
                         maxLength={60}
-                        placeholder='Update User'
+                        placeholder='Update User First Name'
                     />
-                    <input type="text" id='editTask' className='input' 
+                    <input type="text"
                         value={updatedUserLastName} onInput={(e : React.ChangeEvent<HTMLInputElement>) => setUpdatedUserLastName(e.target.value)} 
-                        // can be don in two ways first one above and second one below
-                        // value={task} onInput={(e) => setTask((e.target as HTMLInputElement).value)} 
                         required
-                        // autoFocus
                         maxLength={60}
-                        placeholder='Update User'
+                        placeholder='Update User Last Name'
                     />
                     <button type='submit'>
                         <CheckIcon className="h-6 w-6 text-blue-500"/>
                     </button>
-                    <button type='reset' onClick={() =>setIsEdited(false)}>
+                    <button type='reset' onClick={() => setIsEdited(false)}>
                         Cancel
                     </button>
                 </form>

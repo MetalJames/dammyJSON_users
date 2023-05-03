@@ -28,6 +28,7 @@ type UserProps = {
 }
 
 function App() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [users, setUsers] = useState<any>([]);
 
   //search
@@ -37,7 +38,7 @@ function App() {
   const deferredValueTag = useDeferredValue(searchByTag);
 
   //edit user const
-  const [editUser, setIsEditUser] = useState<{firstName: string, lastName: string}>({firstName: "", lastName: ""});
+  const [editUser, setIsEditUser] = useState<{id: string, firstName: string, lastName: string}>({id: '', firstName: '', lastName: ''});
   const [isEdited, setIsEdited] = useState(false);
 
   const searchedUsers = useMemo(() => {
@@ -66,9 +67,8 @@ function App() {
   //functions
 
   const addTag = (tag: string, userId: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setUsers((prevState: any ) => {
-      const updatedUser = prevState.map((user: {id: string, userTag : string}) => {
+    setUsers((prevState: {id: string, userTag: string[]}[] ) => {
+      const updatedUser = prevState.map((user: {id: string, userTag : string[]}) => {
         if (user.id === userId) {
           const userTag = [...(user.userTag || []), tag];
           return {...user, userTag};
@@ -81,8 +81,7 @@ function App() {
   };
 
   const deleteTag = (tag: string, userId: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setUsers((prevState: any ) => {
+    setUsers((prevState: { id: string; userTag: string; }[] ) => {
       const updatedUser = prevState.map((user: {id: string, userTag : string}) => {
         if (user.id === userId) {
           const userTag = [...(user.userTag || [])].filter(t => t !== tag);
@@ -95,13 +94,12 @@ function App() {
     });
   };
 
-    const updateUser = (user: {id: string, firstName: string, lastName: string}) => {
-      setUsers((prevState: { id: string; firstName: string; lastName: string; }[]) => 
-        prevState.map((oldUser: {id: string, firstName: string, lastName: string}) => oldUser.id === user.id ? { ...oldUser, firstName: user.firstName, lastName: user.lastName } : oldUser));
-      // setIsEdited(false);
+  const updateUser = (user: {id: string, firstName: string, lastName: string}) => {
+    setUsers((prevState: { id: string; firstName: string; lastName: string; }[]) => 
+      prevState.map((oldUser: {id: string, firstName: string, lastName: string}) => oldUser.id === user.id ? { ...oldUser, firstName: user.firstName, lastName: user.lastName } : oldUser));
   }
 
-  const enterEditMode = (user: {firstName: string, lastName: string}) => {
+  const enterEditMode = (user: {id: string, firstName: string, lastName: string}) => {
     setIsEditUser(user)
     setIsEdited(true);
   }
@@ -165,7 +163,6 @@ function App() {
   }, []);
 
   //styles
-
   const style = {
     navbar: `flex justify-between items-center p-4`,
     doubleleftChevron: `${

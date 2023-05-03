@@ -18,7 +18,7 @@ type UserProps = {
     },
     addTag: (userTag: string, userId: string) => void
     deleteTag: (userTag: string, userId: string) => void
-    enterEditMode: (user: {firstName: string, lastName: string}) => void
+    enterEditMode: (user: {id: string, firstName: string, lastName: string}) => void
 }
 
 const UserCard = (props: UserProps) => {
