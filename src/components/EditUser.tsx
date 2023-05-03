@@ -10,20 +10,29 @@ type EditProps = {
         lastName: string,
     },
     updateUser: (user: {id: string, firstName: string, lastName: string}) => void,
+    deleteUser: (user: {id: string}) => void
 }
 
 const EditUser = (props: EditProps) => {
 
-    const { editUser, setIsEdited, updateUser } = props;
+    const { editUser, setIsEdited, updateUser, deleteUser } = props;
 
     const [updatedUserFirstName, setUpdatedUserFirstName] = useState(editUser.firstName);
     const [updatedUserLastName, setUpdatedUserLastName] = useState(editUser.lastName);
+
+    const [deleteThisUser, setDeleteThisUser] = useState(false);
 
     const handleFormSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         updateUser({
             ...editUser, id:editUser.id, firstName: updatedUserFirstName, lastName: updatedUserLastName,
         });
+        setIsEdited(false);
+    }
+
+    const handleDeleteUser = (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        deleteUser(editUser);
         setIsEdited(false);
     }
 
@@ -58,6 +67,16 @@ const EditUser = (props: EditProps) => {
                         Cancel
                     </button>
                 </form>
+                <button type='submit' onClick={() => setDeleteThisUser(true)}>
+                    Delete User
+                </button>
+                {deleteThisUser === true && 
+                    <div>
+                        <p>Are you sure you want to delete this user?</p>
+                        <button type='submit' onClick={handleDeleteUser}>Yes</button>
+                        <button type='reset' onClick={() => setDeleteThisUser(false)}>No</button>
+                    </div>
+                }
             </div>
         </div>
     )

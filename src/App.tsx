@@ -104,6 +104,11 @@ function App() {
     setIsEdited(true);
   }
 
+  const deleteUser = (user: {id: string}) => {
+    setUsers((prevState: []) => prevState.filter((prevUser: {id: string}) => prevUser !== user));
+    setIsEdited(false);
+  }
+
   //handle pages
   const handlePrevPage = () => {
     if(currentPage !== 1) setCurrentPage(currentPage - 1)
@@ -200,7 +205,7 @@ function App() {
           </select>
         </div>
       </div>
-      {isEdited && <EditUser editUser={editUser} updateUser={updateUser} setIsEdited={setIsEdited} />}
+      {isEdited && <EditUser editUser={editUser} updateUser={updateUser} setIsEdited={setIsEdited} deleteUser={deleteUser} />}
       <div className="flex flex-wrap w-full justify-center items-center">
         {visibleUsers.map((user: UserProps, id: number) => (
           <UserCard key={id} user={user} addTag={addTag} deleteTag={deleteTag} enterEditMode={enterEditMode} />
