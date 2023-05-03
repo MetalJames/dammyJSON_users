@@ -10,15 +10,35 @@ import {
 import Pagination from './components/Pagination';
 import Button from './components/Button';
 import SearchBar from './components/SearchBar';
+import EditUser from './components/EditUser';
+
+type UserProps = {
+  id: string,
+  image: string,
+  firstName: string,
+  lastName: string,
+  company: {
+      name: string,
+      title: string,
+  },
+  email: string,
+  phone: string,
+  username: string,
+  userTag: string[]
+}
 
 function App() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<any>([]);
 
   //search
   const [searchByName, setSearchByName] = useState('');
   const deferredValueName = useDeferredValue(searchByName);
   const [searchByTag, setSearchByTag] = useState('');
   const deferredValueTag = useDeferredValue(searchByTag);
+
+  //edit user const
+  const [editUser, setIsEditUser] = useState<{firstName: string, lastName: string}>({firstName: "", lastName: ""});
+  const [isEdited, setIsEdited] = useState(false);
 
   const searchedUsers = useMemo(() => {
     return users.filter((user: {firstName: string, lastName: string, userTag: string}) => {
@@ -75,6 +95,18 @@ function App() {
     });
   };
 
+    const updateUser = (user: {id: string, firstName: string, lastName: string}) => {
+      setUsers((prevState: { id: string; firstName: string; lastName: string; }[]) => 
+        prevState.map((oldUser: {id: string, firstName: string, lastName: string}) => oldUser.id === user.id ? { ...oldUser, firstName: user.firstName, lastName: user.lastName } : oldUser));
+      // setIsEdited(false);
+  }
+
+  const enterEditMode = (user: {firstName: string, lastName: string}) => {
+    setIsEditUser(user)
+    setIsEdited(true);
+  }
+
+  //handle pages
   const handlePrevPage = () => {
     if(currentPage !== 1) setCurrentPage(currentPage - 1)
   }
@@ -83,6 +115,7 @@ function App() {
     if(currentPage !== numOfPages) setCurrentPage(currentPage + 1)
   }
 
+  //handle search
   const handleSearchName = (e: React.FormEvent<HTMLInputElement>) => {
     e.preventDefault();
     setSearchByName(e.currentTarget.value);
@@ -95,6 +128,7 @@ function App() {
     setCurrentPage(1);
   };
 
+  //handle sort
   const handleSort = (value: string) => {
     if (value === 'Sort Original') {
       setUsers(searchedUsers.sort((a: {id: number}, b: {id: number}) => a.id - b.id));
@@ -107,6 +141,7 @@ function App() {
     }
   }
 
+  //handle display users per page
   const handleDisplayPerPage = (value: string) => {
     if (Number(value) === 6) {
       setUsersPerPage(6);
@@ -156,21 +191,22 @@ function App() {
           <SearchBar placeholder='Search by Tag' value={searchByTag} propFunction={handleSearchTag} />
         </div>
         <div className='flex flex-col'>
-          <select onChange={(e) => handleSort(e.currentTarget.value)} className='outline-none'>
+          <select onChange={(e) => handleSort(e.currentTarget.value)} className='outline-none bg-slate-300 my-1 rounded'>
             <option value="Sort Original">Sort Original</option>
             <option value="Sort A-Z">Sort A-Z</option>
             <option value="Sort Z-A">Sort Z-A</option>
           </select>
-          <select onChange={(e) => handleDisplayPerPage(e.currentTarget.value)} className='outline-none'>
+          <select onChange={(e) => handleDisplayPerPage(e.currentTarget.value)} className='outline-none bg-slate-300 my-1 rounded'>
             <option value={6}>Display 6</option>
             <option value={12}>Display 12</option>
             <option value={24}>Display 24</option>
           </select>
         </div>
       </div>
+      {isEdited && <EditUser editUser={editUser} updateUser={updateUser} setIsEdited={setIsEdited} />}
       <div className="flex flex-wrap w-full justify-center items-center">
-        {visibleUsers.map((user: any, id: number) => (
-          <UserCard key={id} user={user} addTag={addTag} deleteTag={deleteTag} />
+        {visibleUsers.map((user: UserProps, id: number) => (
+          <UserCard key={id} user={user} addTag={addTag} deleteTag={deleteTag} enterEditMode={enterEditMode} />
         ))}
       </div>
       <div className="flex justify-center w-full">
