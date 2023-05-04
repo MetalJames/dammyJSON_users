@@ -148,12 +148,15 @@ function App() {
   const handleDisplayPerPage = (value: string) => {
     if (Number(value) === 6) {
       setUsersPerPage(6);
+      setCurrentPage(1);
     }
     else if (Number(value) === 12) {
       setUsersPerPage(12);
+      setCurrentPage(1);
     }
     else if (Number(value) === 24) {
       setUsersPerPage(24);
+      setCurrentPage(1);
     }
   }
 
