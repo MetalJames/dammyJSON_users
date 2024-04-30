@@ -54,7 +54,7 @@ const UserCard = (props: UserProps) => {
                         @{user.username}
                     </p>
                 </div>
-                <button onClick={() => enterEditMode(user)}>Edit<br /> User</button>
+                <button onClick={() => enterEditMode(user)} className="bg-blue-600 hover:bg-blue-900 text-white font-bold px-2 rounded transition-all">Edit<br /> User</button>
             </div>
             <div className='py-2'>
                 <div className='flex items-center'>
@@ -83,7 +83,7 @@ const UserCard = (props: UserProps) => {
                 </div>
                 <div className='flex items-center'>
                     <p className='font-poppins font-normal text-[16px] leading-[24px]'>
-                        Phine Number:&nbsp;
+                        Phone Number:&nbsp;
                     </p>
                     <h4 className='font-poppins font-semibold text-[16px] leading-[32px]'>
                         {user.phone}
@@ -108,7 +108,7 @@ const UserCard = (props: UserProps) => {
                         onInput={(e) => setTag((e.target as HTMLInputElement).value)} 
                         required
                         className='outline-none bg-slate-300 my-1 rounded mr-4' />
-                    <button type='submit'>Add Tag</button>
+                    <button type='submit' className="bg-blue-600 hover:bg-blue-900 text-white font-bold px-4 rounded transition-all">Add Tag</button>
                 </form>
             </div>
         </div>
